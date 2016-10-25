@@ -1,4 +1,63 @@
 @import "../../../assets/stylesheets/custom";
-.alert{
-  padding-left: $pad10;
+:host {
+  background: #ffffff;  
+  position: fixed;
+  left: auto;
+  top: 35px;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  min-width: 250px;
+  z-index: 9999;
+  padding: 20px;
+  border-left: 1px solid #cccccc;  
+}
+.fl{
+  float: left;
+}
+.pficon-user{
+  font-size: 28px;
+}
+input[type='text']{
+  border: none;
+  border-bottom: 1px solid blue;
+  box-shadow: none;
+  font-size: 22px;
+}
+.btn-small{
+  padding: 5px;
+  background-color: ebebeb;
+  margin: 0 5px;
+}
+.clearfloat{
+  clear: both;
+}
+.edit-icon{
+  position: absolute;
+  width: 26px;
+  background-color: #f5f5f5;
+  height: 43px;
+  top:0;
+  right: 22;
+  padding-top: 6px;
+  margin-top: 1px;
+  z-index: 1000;
+}
+.edit-icon span{
+  margin-left: 30%;
+}
+@media (max-width: $grid-float-breakpoint){
+  /*Toggle the details panel's width and left margin*/
+  :host{
+    width: 100%;
+    margin-left: 0;
+    top: 0px;
+    padding: 0;    
+  }
+  .mobile-bar{
+    height: 40px;    
+    background-color: #000000;
+    color: #ffffff;
+    padding: 10px 20px;
+  }
 }

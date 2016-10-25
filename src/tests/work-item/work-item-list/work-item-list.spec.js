@@ -68,10 +68,10 @@ describe('Work item list', function () {
       expect(page.workItemTitle(page.firstWorkItem)).toBe('Some Title');
       expect(page.workItemTitle(page.workItemByNumber(0))).toBe('Some Title');
     });
-  });
-	 
+  });	 
+
   it('should contain right mock data on detail page - desktop.', function() { 
-    testSupport.setBrowserMode('desktop');	
+    testSupport.setBrowserMode('desktop');
     page.workItemViewId(page.firstWorkItem).getText().then(function (text) { 
       var detailPage = page.clickWorkItemViewButton(page.workItemViewButton(page.firstWorkItem), text);
       expect(detailPage.workItemDetailPageTitle.getText()).toBe(workItemMockData.pageTitle);

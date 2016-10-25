@@ -1,4 +1,4 @@
-import { Component, OnInit }      from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit }      from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Location }               from '@angular/common';
 
@@ -19,8 +19,9 @@ import { WorkItemService } from '../work-item.service';
   styleUrls: ['./work-item-detail.component.scss']
 })
 
-export class WorkItemDetailComponent implements OnInit {  
-  workItem: WorkItem;
+export class WorkItemDetailComponent implements OnInit, AfterViewInit{  
+  
+  @Input() workItem: WorkItem;
 
   workItemTypes: WorkItemType[];
   // TODO: These should be read from the WorkitemType of the given Workitem
@@ -38,32 +39,44 @@ export class WorkItemDetailComponent implements OnInit {
   submitted = false;
   active = true;
   loggedIn: Boolean = false;
-  
+
+  headerEditable: Boolean = false;
+  descEditable: Boolean = false;
+    
   constructor(
-    private auth: AuthenticationService,
-    private broadcaster: Broadcaster,
+    private auth: AuthenticationService,    
+    private broadcasterLogout: Broadcaster,
+    private broadcasterDetailReady: Broadcaster,
+    private broadcasterCloseDetail: Broadcaster,    
     private workItemService: WorkItemService,
     private route: ActivatedRoute,
     private location: Location,
     private logger: Logger
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit(): void{     
     this.listenToEvents();
     this.getWorkItemTypes();
-    this.getWorkItemStates();
-    this.route.params.forEach((params: Params) => {
-      if (params['id'] !== undefined) {
-        let id = params['id'];
-        this.workItemService.getWorkItem(id)
-          .then(workItem => this.workItem = workItem);
-      } else {
-        this.workItem = new WorkItem();
-        this.workItem.fields = {'system.assignee': null, 'system.state': 'new', 'system.creator': 'me', 'system.title': null, 'system.description': null};
-        this.workItem.type = 'system.userstory';
-      }
-    });
+    this.getWorkItemStates();    
     this.loggedIn = this.auth.isLoggedIn();
+  }
+  
+  ngAfterViewInit() {
+    window.setTimeout(() => {      
+      this.broadcasterDetailReady.broadcast('detailReady', true);
+    }, 100);
+  }
+
+  isValid(checkTitle: String): Boolean {
+    return (checkTitle.trim() != '');
+  }
+
+  toggleHeader(): void{    
+    this.headerEditable = !this.headerEditable;
+  }
+
+  toggleDescription(): void{        
+    this.descEditable = !this.descEditable;
   }
 
   getWorkItemTypes(): void {
@@ -81,35 +94,50 @@ export class WorkItemDetailComponent implements OnInit {
   }
 
   save(): void {
-    //this.workItem.fields['system.title'] = this.workItem.fields['system.title'].trim();
-    if (this.workItem.fields['system.title']) {
-      this.workItemService
+    console.log('work item');
+    console.log(this.workItem);
+    this.workItemService
       .update(this.workItem)
-      .then(() => 
-        this.goBack(false));
-    } 
+      .then((workItem) => {
+        this.workItem = workItem; 
+        if (this.headerEditable){
+          this.toggleHeader();
+        }
+        if (this.descEditable){
+          this.toggleDescription();
+        }          
+    });
+     
   }
 
-  goBack(change: boolean): void {
-    if (change == true){
+  closeDetails(): void {
+    if (this.headerEditable){
       this.showDialog = true;
     }else{
-      this.location.back();
+      this.broadcasterCloseDetail.broadcast('closeDetail', false);
     }    
   }
 
   onButtonClick(val: number): void{
     if (val == 1){
-      this.goBack(false);
+      this.closeDetails();
     }else{
       this.showDialog = false;
     }
   }
 
   listenToEvents() {
-    this.broadcaster.on<string>('logout')
+    this.broadcasterLogout.on<string>('logout')
       .subscribe(message => {
         this.loggedIn = false;
     });
+  }
+  
+  keyMaps(event: KeyboardEvent) {                
+    if (this.headerEditable || this.descEditable){           
+      this.save();
+      if (this.headerEditable) this.toggleHeader(); 
+      if (this.descEditable) this.toggleDescription();      
+    }
   }
 }

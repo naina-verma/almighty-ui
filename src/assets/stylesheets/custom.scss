@@ -53,7 +53,9 @@ $font20: 20px;
 
 // custom classes
 .width100{ width: $width100; }
+.width50{ width: $width100/2; }
 .marginT20{ margin-top: $margin20; }
+.marginB10{ margin-bottom: $margin10; }
 .marginB20{ margin-bottom: $margin20; }
 .marginT5{ margin-top: $margin5; }
 .marginB5{ margin-bottom: $margin5; }

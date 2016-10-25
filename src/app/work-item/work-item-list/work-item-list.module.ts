@@ -6,12 +6,14 @@ import { DropdownModule }   from './../../shared-component/dropdown/dropdown.mod
 import { DialogModule }   from './../../shared-component/dialog/dialog.module';
 
 import { WorkItemListComponent } from './work-item-list.component';
+import { WorkItemDetailModule } from './../work-item-detail/work-item-detail.module';
 import { WorkItemQuickAddModule } from './../work-item-quick-add/work-item-quick-add.module';
 import { WorkItemListEntryComponent } from './work-item-list-entry/work-item-list-entry.component';
 
 @NgModule({
   imports:      [
     CommonModule, 
+    WorkItemDetailModule,
     WorkItemQuickAddModule,
     Ng2Dropdown,
     DropdownModule,

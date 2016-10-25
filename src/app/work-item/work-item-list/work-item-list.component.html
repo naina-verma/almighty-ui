@@ -1,4 +1,10 @@
-<div class="container-fluid containerPadd">
+<div class="container-fluid containerPadd">	
+	<div *ngIf='showWorkItemDetails' id="details-panel">
+		<alm-work-item-detail
+			[@slideInOut]="panelState"		
+			[workItem]='workItemDetail'>
+		</alm-work-item-detail>
+	</div>
 	<div class="width100 fl">
 		<div class="list-group list-view-pf width100 fl">
 			<alm-work-item-list-entry *ngFor="let workItem of workItems; let counter = index"

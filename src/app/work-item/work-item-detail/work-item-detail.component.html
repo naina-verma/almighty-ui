@@ -4,104 +4,139 @@
 		[dialog]='dialog'	
 	></pf-dialog>
 </div>
-<div class="container-fluid screen-min-ht">
-  <div *ngIf="workItem" id="workItemDetail_Wrapper">
-    <h1>{{workItem.fields['system.title']}} Details</h1>
-    <br />
+<div *ngIf="workItem" id="workItemDetail_Wrapper">
     <div [hidden]="submitted">
-      <form *ngIf="active" (ngSubmit)="save()" #almWorkItemDetailForm="ngForm"
-        id="wi-detail-form">
-        <div class="form-horizontal">
-            <fieldset [attr.disabled]="!loggedIn ? true : null">
-                <div class="form-group">
-                    <label class="col-sm-1 control-label">ID</label>
-                    <div class="col-sm-5" id="wi-detail-id">
-                        {{workItem.id}}
+        <form *ngIf="active" (ngSubmit)="save()" 
+            (keyup.enter)="keyMaps($event)"            
+            #almWorkItemDetailForm="ngForm" id="wi-detail-form">        
+            <fieldset [attr.disabled]="!loggedIn ? true : null">                
+                <div class="visible-xs visible-sm mobile-bar">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-xs-1 marginT5">
+                                <span class="pficon-close" 
+                                (click)="closeDetails()"></span>
+                            </div>
+                            <div class="col-xs-4">
+                                {{workItem.id}}
+                            </div>
+                        </div>
                     </div>
+                </div>  
+                <div class="hidden-xs hidden-sm">
+                    <div class="form-horizontal paddingL20 paddingR20">                
+                        <div class="form-group">
+                            <div class=" col-md-4 marginT5">                
+                                <select id="wi-detail-type" class="form-control" 
+                                    [(ngModel)]="workItem.type"
+                                    (ngModelChange)="save()"
+                                    name="type" #type="ngModel">
+                                    <option *ngFor="let type of workItemTypes" 
+                                        [value]="type.name"
+                                        [selected]='type.name==workItem.type'>
+                                            {{type.name.substring(7,type.length)}}                  
+                                    </option>
+                                </select> 
+                            </div>
+                            <div class=" col-md-4">
+                                <h5 id="wi-detail-id">{{workItem.id}}</h5>
+                            </div>
+                            <div class="col-md-offset-2 col-md-1 marginT10">
+                                <span class="pficon-close" 
+                                (click)="closeDetails()"></span>
+                            </div>
+                        </div>  
+                    </div>                  
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-1 control-label" for="wi-detail-title">
-                        Title
-                    </label>
-                    <div class="col-sm-5">
-                        <input type="text" class="form-control" id="wi-detail-title"
-                            [ngModel]="workItem.fields['system.title'] | almTrim "
-                            (ngModelChange)="workItem.fields['system.title'] = $event"               
-                            required name="title" #title="ngModel" />
-                        <div [hidden]="title.valid || title.pristine" 
-                            class="alert alert-danger">
-                            Title is required
+                <div class="form-horizontal paddingL20 paddingR20">
+                    <div class="form-group">
+                        <!--Work item title-->
+                        <div class="col-md-9">
+                            <div *ngIf='!loggedIn'>
+                                <h2 id="wi-detail-title-ne">{{ workItem.fields['system.title'] }}</h2>
+                            </div>
+                            <div *ngIf='loggedIn && !headerEditable' (click)='toggleHeader()'
+                                title="Click to Edit">
+                                <span class="pficon-edit marginT5 marginR5 fl" id="ico-edit"></span>
+                                <h2 id="wi-detail-title-click">{{ workItem.fields['system.title'] }}</h2>                                
+                            </div>
+                            <div *ngIf="loggedIn && headerEditable"
+                                class="marginT20 marginB10" id="wi-title-div"> 
+                                <input type="text"  id="wi-detail-title"
+                                    class="form-control width50 marginB10 fl"                                
+                                    [ngModel]="workItem.fields['system.title'] | almTrim "
+                                    (ngModelChange)="workItem.fields['system.title'] = $event"               
+                                    required name="title" #title="ngModel" 
+                                    [value]="workItem.fields['system.title'] | almTrim" /> 
+                                <!--Save icon-->                                       
+                                <a id="workItemTitle_btn_save"
+                                    class="fl btn-small" [ngClass]="{'disabled': !(workItem.fields['system.title'] | almTrim)}"
+                                    (click)="isValid(workItem.fields['system.title']) && save()" >                                        
+                                    <span class="pficon-save"></span>
+                                </a>            
+                                <!--Cancel icon-->                        
+                                <a class="fl btn-small" (click)="toggleHeader()"><span class="pficon-close"></span></a>                                
+                                <!--Error message for title-->
+                                <p [hidden]="title.valid || title.pristine" 
+                                    class="clearfloat alert alert-danger">                                    
+                                    Title is required
+                                </p>
+                            </div>
+                        </div>
+                        <!--Work item State-->
+                        <div class="col-md-3 marginT20">
+                            <select id="wi-detail-state" class="form-control"
+                                [(ngModel)]="workItem.fields['system.state']" 
+                                (ngModelChange)="save()" 
+                                name="states">
+                                <option *ngFor="let state of workItemStates" [value]="state.option">
+                                    {{state.option}}
+                                </option>
+                            </select>                            
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-1 control-label" for="wi-detail-desc">
-                        Description
-                    </label>
-                    <div class="col-sm-5">
-                    <textarea id="wi-detail-desc" placeholder="Description" 
-                        class="form-control"
-                        [(ngModel)]="workItem.fields['system.description']"
-                        name="description"></textarea>
+                <div class="form-horizontal paddingL20 paddingR20">
+                    <div class="form-group">
+                        <!--Work item Assignee-->
+                        <div class="col-md-6">
+                            <p class="fl marginT5">
+                                Assignee
+                            </p>
+                            <div class="fl">
+                                <span class="pficon-user fl"></span>
+                            </div>                
+                        </div>        
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-1 control-label" for="wi-detail-type">
-                        Type
-                    </label>
-                    <div class="col-sm-5">              
-                        <select id="wi-detail-type" class="form-control" 
-                            [(ngModel)]="workItem.type"
-                            name="type" #type="ngModel">
-                                <option *ngFor="let type of workItemTypes" 
-                                [value]="type.name"
-                                [selected]='type.name==workItem.type'>
-                                {{type.name.substring(7,type.length)}}                  
-                                </option>
-                        </select>      
+                <div class="form-horizontal paddingL20 paddingR20">
+                    <div class="form-group">
+                        <!--Work item Description-->
+                        <div class="col-md-12">                            
+                            <textarea id="wi-detail-desc" 
+                                placeholder="Description" class="form-control"                                
+                                [(ngModel)]="workItem.fields['system.description']"
+                                [value]="workItem.fields['system.description']"
+                                name="description"
+                                [disabled]="!descEditable">
+                                    {{workItem.fields['system.description']}}
+                                </textarea>
+                            <div class="edit-icon" *ngIf="!descEditable" >
+                                <span class="pficon-edit" (click)='toggleDescription()'></span>
+                            </div>
+                        </div>
+                                                 
+                        <div *ngIf="loggedIn && descEditable" class="col-md-offset-10 col-md-2">
+                            <a class="fl btn-small pull-right" (click)="toggleDescription()">
+                                <span class="pficon-close"></span>
+                            </a>
+                            <a class="fl btn-small pull-right" (click)="save()">
+                                <span class="pficon-save"></span>
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-1 control-label" for="wi-detail-creator">Creator</label>
-                    <div class="col-sm-5">
-                    <input type="text" id="wi-detail-creator" placeholder="Creator" class="form-control"
-                        [(ngModel)]="workItem.fields['system.creator']"
-                        name="creator" />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-1 control-label" for="wi-detail-assignee">Assignee</label>
-                    <div class="col-sm-5">
-                    <input type="text" id="wi-detail-assignee" placeholder="Assignee" class="form-control"
-                        [(ngModel)]="workItem.fields['system.assignee']" 
-                        name="assignee" />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-1 control-label" for="wi-detail-state">State</label>
-                    <div class="col-sm-5">
-                    <select id="wi-detail-state" class="form-control"
-                        [(ngModel)]="workItem.fields['system.state']" 
-                        name="states">
-                        <option *ngFor="let state of workItemStates" [value]="state.option">
-                          {{state.option}}
-                        </option>
-                    </select>
-                    </div>
-                </div>
-            </fieldset>
-            <div class="form-group">
-                <div class="col-sm-offset-1 col-sm-5">
-                <button type="submit" class="btn btn-primary" id="workItemDetail_btn_save" 
-                    [disabled]="!almWorkItemDetailForm.form.valid || !(workItem.fields['system.title'] | almTrim) || !loggedIn">
-                    Save
-                </button>
-                <button [attr.disabled]="null" type="button" id="workItemDetail_btn_back" class="btn btn-default"        
-                  (click)="goBack(almWorkItemDetailForm.form.dirty)">Back</button>
-                </div>
-            </div>
-            </div>    
-      </form>
+            </fieldset>                         
+        </form>
     </div>
   </div>
-</div>

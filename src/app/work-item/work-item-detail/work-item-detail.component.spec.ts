@@ -51,7 +51,8 @@ describe('Detailed view and edit a selected work item - ', () => {
   let fakeWorkItemTypes: WorkItemType[];
   let fakeWorkItemStates: DropdownOption[];
 
-  beforeEach(() => {
+  beforeEach(() => 
+{
     dialog = {
       'title' : 'Changes have been made',
       'message' : 'Do you want to discard your changes?',
@@ -97,11 +98,20 @@ describe('Detailed view and edit a selected work item - ', () => {
 
 
     fakeAuthService = {
+      loggedIn: false,
+
       getToken: function () {
         return '';
       },
       isLoggedIn: function() {
-        return true;
+        return this.loggedIn;
+      },
+      login: function() {
+        this.loggedIn = true;
+      },
+
+      logout: function() {
+        this.loggedIn = false;
       }
     };
 
@@ -128,15 +138,20 @@ describe('Detailed view and edit a selected work item - ', () => {
         });
       }
     };
+
+    fakeUserService = {
+      getUser: function () 
+      {
+        return new Promise((resolve, reject) => 
+        {
+          resolve(fakeUser);
+        });
+      }
+    };
+  
   });
 
-  fakeUserService = {
-    getUser: function () {
-      return new Promise((resolve, reject) => {
-        resolve(fakeUser);
-      });
-    },
-  };
+  
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -177,202 +192,214 @@ describe('Detailed view and edit a selected work item - ', () => {
       });
   }));
 
-  it('Page title should have the work item title',
-    fakeAsync(() => {
-      fixture.detectChanges();
-      el = fixture.debugElement.query(By.css('h1'));
+  it('Page should display work item ID when logged in', () => {      
+      fakeAuthService.login();
+      fixture.detectChanges();      
       comp.workItem = fakeWorkItem;
-      fixture.detectChanges();
-      comp.save();
-      tick();
-      expect(el.nativeElement.textContent).toContain(fakeWorkItem.fields['system.title']);
-    }));
-
-  it('Page should display work item ID',
-    fakeAsync(() => {
+      comp.loggedIn = fakeAuthService.isLoggedIn();           
       fixture.detectChanges();
       el = fixture.debugElement.query(By.css('#wi-detail-id'));
-      comp.workItem = fakeWorkItem;
-      fixture.detectChanges();
-      comp.save();
-      tick();
       expect(el.nativeElement.textContent).toContain(fakeWorkItem.id);
-    }));
+  });
 
-  it('Page should display work item title',
-    fakeAsync(() => {
-      fixture.detectChanges();
-      el = fixture.debugElement.query(By.css('#wi-detail-title'));
-      comp.workItem = fakeWorkItem;
-      fixture.detectChanges();
-      comp.save();
-      tick();
-      expect(el.nativeElement.value).toContain(fakeWorkItem.fields['system.title']);
-    }));
-
-  it('Save should be enabled if a valid work item title has been entered',
-    fakeAsync(() => {
-      fixture.detectChanges();
-      el = fixture.debugElement.query(By.css('#workItemDetail_btn_save'));
-      comp.workItem.fields['system.title'] = 'Valid work item title';
-      fixture.detectChanges();
-      comp.save();
-      tick();
-      expect(el.attributes['disabled']).toBeFalsy();
-    }));
-
-  it('Work item ID cannot be edited (change model) ',
-    fakeAsync(() => {
+  it('Page should display work item ID when not logged in', () => {
+      fakeAuthService.logout();
       fixture.detectChanges();
       comp.workItem = fakeWorkItem;
+      comp.loggedIn = fakeAuthService.isLoggedIn();
+      fixture.detectChanges();
       el = fixture.debugElement.query(By.css('#wi-detail-id'));
-      comp.workItem.id = 'New ID';
+      expect(el.nativeElement.textContent).toContain(fakeWorkItem.id);
+  });
+
+  it('Work item ID cannot be edited (change model) ', () => {
+      fakeAuthService.login();
+      fixture.detectChanges();      
+      comp.workItem = fakeWorkItem;
+      comp.loggedIn = fakeAuthService.isLoggedIn();
       fixture.detectChanges();
-      comp.save();
-      tick();
+      el = fixture.debugElement.query(By.css('#wi-detail-id'));
+      comp.workItem.id = 'New ID';      
+      comp.save();      
       expect(el.nativeElement.textContent).not.toEqual(comp.workItem.id);
-    }));
+  });
 
-  it('Work item ID cannot be edited (change html) ',
-    fakeAsync(() => {
-      fixture.detectChanges();
+  it('Work item ID cannot be edited (change html) ', () => {      
+      fakeAuthService.login();
+      fixture.detectChanges();      
       comp.workItem = fakeWorkItem;
-      el = fixture.debugElement.query(By.css('#wi-detail-id'));
-      el.nativeElement.textContent = 'New ID';
+      comp.loggedIn = fakeAuthService.isLoggedIn();
       fixture.detectChanges();
-      comp.save();
-      tick();
+      el = fixture.debugElement.query(By.css('#wi-detail-id'));      
+      el.nativeElement.textContent = 'New ID';      
+      comp.save();      
       expect(comp.workItem.id).not.toEqual(el.nativeElement.textContent);
-    }));
+  });
 
-  it('Work item title can be edited ',
-    fakeAsync(() => {
-      fixture.detectChanges();
+  it('Page should display page title when logged in', () => {      
+    fakeAuthService.login();
+    fixture.detectChanges();      
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();
+    fixture.detectChanges();
+    el = fixture.debugElement.query(By.css('#wi-detail-title-click'));
+    expect(el.nativeElement.textContent).toContain(fakeWorkItem.fields['system.title']);
+  });
+
+  it('Page should display page title when not logged in', () => {      
+    fakeAuthService.logout();
+    fixture.detectChanges();      
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();
+    fixture.detectChanges();      
+    el = fixture.debugElement.query(By.css('#wi-detail-title-ne'));
+    expect(el.nativeElement.textContent).toContain(fakeWorkItem.fields['system.title']);
+  });
+
+  it('Edit icon displayed when logged in', () => {      
+    fakeAuthService.login();
+    fixture.detectChanges();      
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();
+    fixture.detectChanges();     
+    el = fixture.debugElement.query(By.css('.pficon-edit'));
+    expect(el.attributes['id']).toBeDefined();
+  });
+
+  it('Edit icon to be undefined when not logged in', () => {
+    fakeAuthService.logout();
+    fixture.detectChanges();      
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();    
+    fixture.detectChanges();      
+    el = fixture.debugElement.query(By.css('.pficon-edit'));    
+    expect(el.attributes['id']).not.toBeDefined();       
+  });
+
+  it('Page should display non-editable work item title when not logged in', () => {
+    fakeAuthService.logout();
+    fixture.detectChanges();      
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();           
+    fixture.detectChanges();
+    el = fixture.debugElement.query(By.css('#wi-detail-title-ne'));
+    expect(el.nativeElement.textContent).toContain(fakeWorkItem.fields['system.title']);
+  });
+
+  it('Page should display clickable work item title when looged in', () => {
+    fakeAuthService.login();
+    fixture.detectChanges();      
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();           
+    fixture.detectChanges();    
+    el = fixture.debugElement.query(By.css('#wi-detail-title-click'));
+    expect(el.nativeElement.textContent).toContain(fakeWorkItem.fields['system.title']);
+  });
+
+  it('Page should display editable work item title when logged in', () => {
+    fakeAuthService.login();
+    fixture.detectChanges();         
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();           
+    fixture.detectChanges();    
+    comp.toggleHeader();
+    fixture.detectChanges();
+    el = fixture.debugElement.query(By.css('#wi-detail-title'));
+    expect(el.nativeElement.value).toContain(fakeWorkItem.fields['system.title']);
+  });
+
+  it('Work item title can be edited when logged in', () => {
+    fakeAuthService.login();
+    fixture.detectChanges();         
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();           
+    fixture.detectChanges();    
+    comp.toggleHeader();
+    fixture.detectChanges();    
+    el = fixture.debugElement.query(By.css('#wi-detail-title'));
+    comp.workItem.fields['system.title'] = 'User entered valid work item title';      
+    fixture.detectChanges();
+    comp.save();
+    expect(comp.workItem.fields['system.title']).toContain(el.nativeElement.value);
+  });
+
+  it('Save should be enabled if a valid work item title has been entered', () => {
+    fakeAuthService.login();
+    fixture.detectChanges();         
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();           
+    fixture.detectChanges();    
+    comp.toggleHeader();
+    fixture.detectChanges();
+    el = fixture.debugElement.query(By.css('#workItemTitle_btn_save'));
+    comp.workItem.fields['system.title'] = 'Valid work item title';
+    fixture.detectChanges();
+    comp.save();      
+    expect(el.classes['disabled']).toBeFalsy();
+  });
+
+  it('Save should be disabled if the work item title is blank', () => {
+      fakeAuthService.login();
+      fixture.detectChanges();         
       comp.workItem = fakeWorkItem;
-      el = fixture.debugElement.query(By.css('#wi-detail-title'));
-      el.nativeElement.value = 'User entered work item title';
+      comp.loggedIn = fakeAuthService.isLoggedIn();           
+      fixture.detectChanges();    
+      comp.toggleHeader();
       fixture.detectChanges();
-      comp.save();
-      tick();
-      expect(comp.workItem.fields['system.title']).toContain(el.nativeElement.value);
-    }));
-
-  it('Work item description can be edited ',
-    fakeAsync(() => {
-      fixture.detectChanges();
-      comp.workItem = fakeWorkItem;
-      el = fixture.debugElement.query(By.css('#wi-detail-desc'));
-      el.nativeElement.value = 'User entered work item description';
-      fixture.detectChanges();
-      comp.save();
-      tick();
-      expect(comp.workItem.fields['system.description']).toContain(el.nativeElement.textContent);
-    }));
-
-  it('Work item type can be edited ',
-    fakeAsync(() => {
-      fixture.detectChanges();
-      comp.workItem = fakeWorkItem;
-      el = fixture.debugElement.query(By.css('#wi-detail-type'));
-      el.nativeElement.value = 'system.experience';
-      fixture.detectChanges();
-      comp.save();
-      tick();
-      expect(comp.workItem.type).toContain(el.nativeElement.value);
-    }));
-
-  it('Work item assignee can be edited ',
-    fakeAsync(() => {
-      fixture.detectChanges();
-      comp.workItem = fakeWorkItem;
-      el = fixture.debugElement.query(By.css('#wi-detail-assignee'));
-      el.nativeElement.value = 'me a user';
-      fixture.detectChanges();
-      comp.save();
-      tick();
-      expect(comp.workItem.fields['system.assignee']).toContain(el.nativeElement.value);
-    }));
-
-  it('Work item creator can be edited ',
-    fakeAsync(() => {
-      fixture.detectChanges();
-      comp.workItem = fakeWorkItem;
-      el = fixture.debugElement.query(By.css('#wi-detail-creator'));
-      el.nativeElement.value = 'me a creator';
-      fixture.detectChanges();
-      comp.save();
-      tick();
-      expect(comp.workItem.fields['system.creator']).toContain(el.nativeElement.value);
-    }));
-
-  it('Work item state can be edited ',
-    fakeAsync(() => {
-      fixture.detectChanges();
-      comp.workItem = fakeWorkItem;
-      el = fixture.debugElement.query(By.css('#wi-detail-state'));
-      el.nativeElement.value = 'resolved';
-      fixture.detectChanges();
-      comp.save();
-      tick();
-      expect(comp.workItem.fields['system.state']).toContain(el.nativeElement.value);
-    }));
-
-  it('Save should be disabled if work item\'s title has only whitespace',
-    fakeAsync(() => {
-      fixture.detectChanges();
-      el = fixture.debugElement.query(By.css('#workItemDetail_btn_save'));
-      comp.workItem.fields['system.title'] = '       ';
-      fixture.detectChanges();
-      comp.save();
-      tick();
-      expect(el.attributes['disabled']).toBeFalsy();            
-    }));
-
-  it('Save should be disabled if the work item\'s title is blank',
-    fakeAsync(() => {
-      fixture.detectChanges();
-      el = fixture.debugElement.query(By.css('#workItemDetail_btn_save'));
       comp.workItem.fields['system.title'] = '';
       fixture.detectChanges();
-      comp.save();
-      tick();
-      //Save button will NOT have the btn-primary class
-      expect(el.classes['btn-primary']).toBeFalsy();
-    }));
+      el = fixture.debugElement.query(By.css('#workItemTitle_btn_save'));
+      fixture.detectChanges();      
+      expect(el.classes['disabled']).toBeTruthy();
+  });
 
-  it('Navigate when Back is clicked without making any changes',
-    inject([Location], fakeAsync((location: Location) => {
-      spyOn(location, 'back');
-      fixture.detectChanges();
-      el = fixture.debugElement.query(By.css('#workItemDetail_btn_back'));
-      el.triggerEventHandler('click', null);
-      tick();
-      expect(location.back).toHaveBeenCalled();
-    })));
+  it('Work item description can be edited when logged in', () => {
+    fakeAuthService.login();
+    fixture.detectChanges();         
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();           
+    fixture.detectChanges();    
+    comp.toggleDescription();
+    fixture.detectChanges();    
+    el = fixture.debugElement.query(By.css('#wi-detail-desc'));
+    comp.workItem.fields['system.description'] = 'User entered work item description';      
+    fixture.detectChanges();
+    comp.save();
+    expect(comp.workItem.fields['system.description']).toContain(el.nativeElement.value);
+  });
 
-  it('Display confrimation dialog when Back is clicked after making changes',
-    inject([Location], fakeAsync((location: Location) => {
-      spyOn(location, 'back');
-      fixture.detectChanges();
-      comp.workItem = fakeWorkItem;
-      el1 = fixture.debugElement.query(By.css('#wi-detail-title'));
-      el1.nativeElement.value = 'User entered work item title';      
-      fixture.detectChanges();
-      tick();
-      comp.goBack(true);
-      expect(location.back).not.toHaveBeenCalled();
-    })));
+  it('Work item description cannot be edited when logged out', () => {
+    fakeAuthService.logout();
+    fixture.detectChanges();         
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();           
+    fixture.detectChanges();    
+    el = fixture.debugElement.query(By.css('#wi-detail-desc'));
+    expect(el.attributes['disabled']);
+  });
 
+  it('Work item type can be edited when logged in', () => {
+    fakeAuthService.login();
+    fixture.detectChanges();         
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();           
+    fixture.detectChanges(); 
+    el = fixture.debugElement.query(By.css('#wi-detail-type'));
+    comp.workItem.type = 'system.experience';
+    fixture.detectChanges();
+    expect(comp.workItem.type).toContain(el.nativeElement.value);
+  });
 
-  it('Navigate when work item form has been submitted and submit resolves',
-    inject([Location], fakeAsync((location: Location) => {
-      spyOn(location, 'back');
-      fixture.detectChanges();
-      comp.workItem = fakeWorkItem;
-      el = fixture.debugElement.query(By.css('#wi-detail-form'));
-      el.triggerEventHandler('submit', null);
-      tick();
-      expect(location.back).toHaveBeenCalled();
-    })));
+  it('Work item state can be edited when logged in', () => {
+    fakeAuthService.login();
+    fixture.detectChanges();         
+    comp.workItem = fakeWorkItem;
+    comp.loggedIn = fakeAuthService.isLoggedIn();           
+    fixture.detectChanges(); 
+    el = fixture.debugElement.query(By.css('#wi-detail-state'));
+    comp.workItem.type = 'resolved';
+    fixture.detectChanges();
+    expect(comp.workItem.fields['system.state']).toContain(el.nativeElement.value);
+  }); 
 
 });

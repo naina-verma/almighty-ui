@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
 import { Router }            from '@angular/router';
 
 import { AuthenticationService } from './../../auth/authentication.service';
@@ -13,14 +13,29 @@ import { WorkItemService }            from '../work-item.service';
   selector: 'alm-work-item-list',
   templateUrl: './work-item-list.component.html',
   styleUrls: ['./work-item-list.component.scss'],
+  animations: [
+    trigger('slideInOut', [
+      state('in', style({
+        transform: 'translate3d(0, 0, 0)'
+      })),
+      state('out', style({
+        transform: 'translate3d(100%, 0, 0)'
+      })),
+      transition('in => out', animate('500ms ease-in-out')),
+      transition('out => in', animate('500ms ease-in-out'))
+    ]),
+  ]
 })
 export class WorkItemListComponent implements OnInit {
 
   workItems: WorkItem[];
   selectedWorkItemEntryComponent: WorkItemListEntryComponent;
+  workItemDetail: WorkItem;
   addingWorkItem = false;
   showOverlay : Boolean ;
   loggedIn: Boolean = false;
+  showWorkItemDetails: boolean = false;
+  panelState: String = 'out';
 
   constructor(
     private auth: AuthenticationService,
@@ -53,7 +68,7 @@ export class WorkItemListComponent implements OnInit {
             return item;
           });
         });
-      });
+      });      
   }
 
   addWorkItem(): void {
@@ -75,14 +90,13 @@ export class WorkItemListComponent implements OnInit {
       this.selectedWorkItemEntryComponent.deselect();
     // select new component
     entryComponent.select();
-    this.selectedWorkItemEntryComponent = entryComponent;
+    this.selectedWorkItemEntryComponent = entryComponent;    
   }
 
-  onDetail(entryComponent: WorkItemListEntryComponent): void {
-    let workItem: WorkItem = entryComponent.getWorkItem();
-    // clicking on detail always also selects an entry
+  onDetail(entryComponent: WorkItemListEntryComponent): void {    
+    this.workItemDetail = entryComponent.getWorkItem();    
     this.onSelect(entryComponent);
-    this.router.navigate(['/detail', workItem.id]);
+    this.showWorkItemDetails = true; 
   }
 
   onDelete(entryComponent: WorkItemListEntryComponent): void {
@@ -93,6 +107,19 @@ export class WorkItemListComponent implements OnInit {
     this.broadcaster.on<string>('logout')
       .subscribe(message => {
         this.loggedIn = false;
+    });
+    this.broadcaster.on<string>('closeDetail')
+      .subscribe(message => {        
+        this.panelState = 'out';
+        this.reloadWorkItems(); 
+        console.log(this.panelState);
+        window.setTimeout(() =>{
+          this.showWorkItemDetails = false;
+        }, 600);            
+    });
+    this.broadcaster.on<string>('detailReady')
+      .subscribe(message => {        
+        this.panelState = 'in';               
     });
   }
 }
