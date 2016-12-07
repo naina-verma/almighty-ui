@@ -21,9 +21,13 @@ import { WorkItemType } from './work-item-type';
 
 
 
+import { MockHttp } from './../shared/mock-http';
+import Globals = require('./../shared/globals');
+
 @Injectable()
 export class WorkItemService {
-  private headers = new Headers({ 'Content-Type': 'application/json' });
+  
+  private headers = new Headers({'Content-Type': 'application/json'});
   private workItemUrl = process.env.API_URL + 'workitems';  // URL to web api
   private workItemTypeUrl = process.env.API_URL + 'workitemtypes';
   private linkTypesUrl = process.env.API_URL + 'workitemlinktypes';
@@ -45,7 +49,12 @@ export class WorkItemService {
     if (this.auth.getToken() != null) {
       this.headers.set('Authorization', 'Bearer ' + this.auth.getToken());
     }
-    logger.log('WorkItemService running in ' + process.env.ENV + ' mode.');
+    if (Globals.inTestMode) {
+      logger.log('WorkItemService running in ' + process.env.ENV + ' mode.');
+      this.http = new MockHttp(logger);
+    } else {
+      logger.log('WorkItemService running in production mode.');
+    }
     logger.log('WorkItemService using url ' + this.workItemUrl);
   }
 
@@ -155,10 +164,7 @@ export class WorkItemService {
     let url = this.workItemUrl;
     if (id in this.workItemIdIndexMap) {
       let wItem = this.workItems[this.workItemIdIndexMap[id]];
-      if (process.env.ENV != 'inmemory') {
-        this.resolveComments(wItem);
-        this.resolveLinks(wItem);
-      }
+      this.resolveComments(wItem);
       return Promise.resolve(wItem);
     } else {
       this.buildUserIdMap();
@@ -170,10 +176,7 @@ export class WorkItemService {
           this.resolveUsersForWorkItem(wItem);
           this.workItems.splice(this.workItems.length, 0, wItem);
           this.buildWorkItemIdIndexMap();
-          if (process.env.ENV != 'inmemory') {
-            this.resolveComments(this.workItems[this.workItemIdIndexMap[wItem.id]]);
-            this.resolveLinks(this.workItems[this.workItemIdIndexMap[wItem.id]]);
-          }
+          this.resolveComments(this.workItems[this.workItemIdIndexMap[wItem.id]]);
           return this.workItems[this.workItemIdIndexMap[wItem.id]];
         })
         .catch (this.handleError);
@@ -369,9 +372,9 @@ export class WorkItemService {
         .get(this.workItemTypeUrl)
         .toPromise()
         .then((response) => {
-          this.workItemTypes = process.env.ENV != 'inmemory' ? response.json() as WorkItemType[] : response.json().data as WorkItemType[];
+          this.workItemTypes = response.json() as WorkItemType[];
           return this.workItemTypes;
-      })
+        })
       .catch (this.handleError);
     }
   }
