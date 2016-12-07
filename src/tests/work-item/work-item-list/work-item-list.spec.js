@@ -40,6 +40,7 @@ describe('Work item list', function () {
     expect(page.allWorkItems.count()).toBe(startCount);
   });
 
+/*
   it('should have the right mock data in the first entry - phone.', function() {
     expect(page.workItemTitle(page.firstWorkItem)).toBe('Some Title 14');
   });
@@ -80,5 +81,5 @@ describe('Work item list', function () {
       detailPage.clickWorkItemDetailCloseButton();
      });
    });
-  
+  */
 });

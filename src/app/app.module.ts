@@ -1,5 +1,8 @@
 import './rxjs-extensions';
 
+// Globals
+import Globals = require('./shared/globals');
+
 import { ModuleWithProviders, NgModule }      from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpModule }    from '@angular/http';
@@ -41,6 +44,9 @@ import { WorkItemSearchComponent }    from './work-item/work-item-search/work-it
 import { WorkItemService }            from './work-item/work-item.service';
 import { WorkItemListModule }             from './work-item/work-item-list/work-item-list.module';
 
+// Mock data
+import { MockDataService } from './shared/mock-data.service';
+
 // Main areas
 import { ChatModule } from './chat/chat.module';
 import { CodeModule } from './code/code.module';
@@ -52,73 +58,50 @@ import { SettingsModule } from './settings/settings.module';
 import { TestModule } from './test/test.module';
 
 // conditionally import the inmemory resource module
-var moduleImports: Array<any[] | any | ModuleWithProviders>;
+var serviceImports: Array<any[] | any | ModuleWithProviders>;
 
 // The inmemory environment variable is checked and if present then the in-memory dataset is added.
 if (process.env.ENV == 'inmemory') {
-  moduleImports = [
-    BrowserModule,
-    BoardModule,
-    ChatModule,
-    CodeModule,
-    DropdownModule,
-    FormsModule,
-    HomeModule,
-    HypothesisModule,
-    HttpModule,
-    NotificationsModule,
-    PipelineModule,
-    SettingsModule,
-    TabsModule,
-    TestModule,
-    WorkItemListModule,
-    InMemoryWebApiModule.forRoot(InMemoryDataService),
-    AppRoutingModule
+  Globals.inTestMode = true;
+  serviceImports = [
+    Logger,
+    AuthenticationService,
+    Broadcaster,
+    LoginService,
+    UserService,
+    WorkItemService,
+    MockDataService
   ];
 } else {
-  moduleImports = [
-    BrowserModule,
-    BoardModule,
-    ChatModule,
-    CodeModule,
-    DropdownModule,
-    FormsModule,
-    HomeModule,
-    HypothesisModule,
-    HttpModule,
-    NotificationsModule,
-    PipelineModule,
-    SettingsModule,
-    TabsModule,
-    TestModule,
-    WorkItemListModule,
-    AppRoutingModule
+  serviceImports = [
+    Logger,
+    AuthenticationService,
+    Broadcaster,
+    LoginService,
+    UserService,
+    WorkItemService
   ];
 }
 
 @NgModule({
-  imports: moduleImports,
-  // imports: [
-  //   AppRoutingModule,
-  //   BrowserModule,
-  //   BoardModule,
-  //   ChatModule,
-  //   CodeModule,
-  //   DropdownModule,
-  //   FormsModule,
-  //   HomeModule,
-  //   HypothesisModule,
-  //   HttpModule,
-  //   NotificationsModule,
-  //   PipelineModule,
-  //   SettingsModule,
-  //   TabsModule,
-  //   TestModule,
-  //   WorkItemListModule,
-  //   // InMemoryWebApiModule.forRoot(InMemoryDataService)
-  //   // The inmemory environment variable is checked and if present then the in-memory dataset is added.
-  //   // process.env.ENV == 'inmemory' ? InMemoryWebApiModule.forRoot(InMemoryDataService) : null
-  // ],
+  imports: [
+    BrowserModule,
+    BoardModule,
+    ChatModule,
+    CodeModule,
+    DropdownModule,
+    FormsModule,
+    HomeModule,
+    HypothesisModule,
+    HttpModule,
+    NotificationsModule,
+    PipelineModule,
+    SettingsModule,
+    TabsModule,
+    TestModule,
+    WorkItemListModule,
+    AppRoutingModule
+  ],
   declarations: [    
     AppComponent,
     FooterComponent,
@@ -126,14 +109,7 @@ if (process.env.ENV == 'inmemory') {
     LoginComponent,
     WorkItemSearchComponent
   ],
-  providers: [
-    Logger,
-    AuthenticationService,
-    Broadcaster,
-    LoginService,
-    UserService,
-    WorkItemService
-  ],
+  providers: serviceImports,
   bootstrap: [ AppComponent ]
 })
 export class AppModule { }

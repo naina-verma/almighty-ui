@@ -9,8 +9,12 @@ import { Logger } from './../shared/logger.service';
 import { WorkItem } from './work-item';
 import { WorkItemType } from './work-item-type';
 
+import { MockHttp } from './../shared/mock-http';
+import Globals = require('./../shared/globals');
+
 @Injectable()
 export class WorkItemService {
+  
   private headers = new Headers({'Content-Type': 'application/json'});
   private workItemUrl = process.env.API_URL + 'workitems';  // URL to web api
   private workItemTypeUrl = process.env.API_URL + 'workitemtypes';
@@ -24,7 +28,12 @@ export class WorkItemService {
     if (this.auth.getToken() != null) {
       this.headers.set('Authorization', 'Bearer ' + this.auth.getToken());
     }
-    logger.log('WorkItemService running in ' + process.env.ENV + ' mode.');
+    if (Globals.inTestMode) {
+      logger.log('WorkItemService running in ' + process.env.ENV + ' mode.');
+      this.http = new MockHttp(logger);
+    } else {
+      logger.log('WorkItemService running in production mode.');
+    }
     logger.log('WorkItemService using url ' + this.workItemUrl);
   }
 
@@ -32,7 +41,6 @@ export class WorkItemService {
     return this.http
       .get(this.workItemUrl + '.2', {headers: this.headers})
       .toPromise()
-      //.then(response => process.env.ENV != 'inmemory' ? response.json() as WorkItem[] : response.json().data as WorkItem[])
       .then(response => {
         this.workItems = response.json().data as WorkItem[];
         return this.workItems;
@@ -50,7 +58,7 @@ export class WorkItemService {
       .get(this.workItemTypeUrl)
       .toPromise()
       .then((response) => {
-        this.workItemTypes = process.env.ENV != 'inmemory' ? response.json() as WorkItemType[] : response.json().data as WorkItemType[];
+        this.workItemTypes = response.json() as WorkItemType[];
         return this.workItemTypes;
       })
       .catch(this.handleError);
@@ -61,7 +69,7 @@ export class WorkItemService {
     return this.http
       .get(this.workItemUrl + '/' + id, {headers: this.headers})
       .toPromise()
-      .then((response) => process.env.ENV != 'inmemory' ? response.json() as WorkItem : response.json().data as WorkItem) 
+      .then((response) => response.json() as WorkItem) 
       .catch(this.handleError);
   }
 
