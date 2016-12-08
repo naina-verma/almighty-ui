@@ -110,7 +110,7 @@ export class WorkItemService {
     return this.http
       .post(this.workItemUrl, JSON.stringify(workItem), {headers: this.headers})
       .toPromise()
-      .then(response => process.env.ENV != 'inmemory' ? response.json() as WorkItem : response.json().data as WorkItem)
+      .then(response => response.json() as WorkItem)
       .catch(this.handleError);
   }
 
@@ -119,7 +119,7 @@ export class WorkItemService {
     return this.http
       .put(url, JSON.stringify(workItem), {headers: this.headers})
       .toPromise()
-      .then(response => process.env.ENV != 'inmemory' ? response.json() as WorkItem : workItem)
+      .then(response => response.json() as WorkItem)
       .catch(this.handleError);
   }
 

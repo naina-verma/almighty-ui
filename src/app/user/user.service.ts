@@ -38,7 +38,7 @@ export class UserService {
           .get(this.userUrl, {headers: this.headers})
           .toPromise()
           .then(response => {
-            this.userData = process.env.ENV != 'inmemory' ? response.json() as User : response.json().data as User;
+            this.userData = response.json() as User;
             return this.userData;
           })
           .catch(this.handleError);
