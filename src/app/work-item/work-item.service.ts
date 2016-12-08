@@ -412,26 +412,11 @@ export class WorkItemService {
   create(workItem: WorkItem): Promise<WorkItem> {
     let url = this.workItemUrl;
     let payload = JSON.stringify({data: workItem});
-    if (process.env.ENV === 'inmemory') {
-      // the inmemory db uses number id's by default. That clashes with the core api.
-      // so we create a random id for new inmemory items and set them prior to storing,
-      // so the inmemory db uses them as id. As the id is possibly displayed in the
-      // ui, only 5 random characters are used to not break UI components. The entropy
-      // is sufficient for tests and dev.  
-      workItem.id = '';
-      var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      for (var i = 0; i < 5; i++)
-        workItem.id += possible.charAt(Math.floor(Math.random() * possible.length));
-      payload = JSON.stringify(workItem);
-    }
     return this.http
       .post(url, payload, { headers: this.headers })
       .toPromise()
       .then(response => {
-        let newWorkItem: WorkItem = 
-          process.env.ENV != 'inmemory' ? 
-            response.json().data as WorkItem : 
-            cloneDeep(workItem) as WorkItem;
+        let newWorkItem: WorkItem = response.json().data as WorkItem;
         // Resolve the user for the new item
         this.resolveUsersForWorkItem(newWorkItem);
         // Add newly added item to the top of the list
@@ -451,35 +436,21 @@ export class WorkItemService {
    * @Input: WorkItem - workItem (Item to be created)
    */
   update(workItem: WorkItem): Promise<WorkItem> {
-    if (process.env.ENV == 'inmemory') {
-      let url = `${this.workItemUrl}/${workItem.id}`;
-      return this.http
-        .post(url, JSON.stringify(workItem), { headers: this.headers })
-        .toPromise()
-        .then(response => {
-          let updatedWorkItem = cloneDeep(workItem) as WorkItem;
-          let updateIndex = this.workItems.findIndex(item => item.id == updatedWorkItem.id);
-          this.workItems[updateIndex] = updatedWorkItem;
-          return updatedWorkItem;
-        })
-        .catch(this.handleError);
-    } else {
-      let url = `${this.workItemUrl}/${workItem.id}`;
-      return this.http
-        .patch(url, JSON.stringify({data: workItem}), { headers: this.headers })
-        .toPromise()
-        .then(response => {
-          let updatedWorkItem = response.json().data as WorkItem;
-          // Find the index in the big list
-          let updateIndex = this.workItems.findIndex(item => item.id == updatedWorkItem.id);
-          // Assign the updated work item to the list
-          this.workItems[updateIndex] = updatedWorkItem;
-          // Resolve users for the updated item
-          this.resolveUsersForWorkItem(updatedWorkItem);
-          return updatedWorkItem;
-        })
-        .catch(this.handleError);
-    }
+    let url = `${this.workItemUrl}/${workItem.id}`;
+    return this.http
+      .patch(url, JSON.stringify({data: workItem}), { headers: this.headers })
+      .toPromise()
+      .then(response => {
+        let updatedWorkItem = response.json().data as WorkItem;
+        // Find the index in the big list
+        let updateIndex = this.workItems.findIndex(item => item.id == updatedWorkItem.id);
+        // Assign the updated work item to the list
+        this.workItems[updateIndex] = updatedWorkItem;
+        // Resolve users for the updated item
+        this.resolveUsersForWorkItem(updatedWorkItem);
+        return updatedWorkItem;
+      })
+      .catch(this.handleError);
   }
 
   /**

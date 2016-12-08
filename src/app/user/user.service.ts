@@ -46,7 +46,7 @@ export class UserService {
           .get(this.userUrl, {headers: this.headers})
           .toPromise()
           .then(response => {
-            let userData = process.env.ENV != 'inmemory' ? response.json() as User : response.json().data as User;
+            let userData = response.json() as User;
             // The reference of this.userData is 
             // being used in Header
             // So updating the value like that
