@@ -1,3 +1,6 @@
+import { MockHttp } from './../../../../shared/mock-http';
+import Globals = require('./../../../../shared/globals');
+
 import { Injectable } from '@angular/core';
 import { Headers, Http } from '@angular/http';
 
@@ -7,7 +10,6 @@ import { AuthenticationService } from '../../../../auth/authentication.service';
 import { Logger } from '../../../../shared/logger.service';
 import { LinkType } from '../../../../models/link-type';
 import { Link } from '../../../../models/link';
-
 
 @Injectable()
 export class WorkItemLinkService {
@@ -20,7 +22,16 @@ export class WorkItemLinkService {
 
   constructor(private http: Http,
               private logger: Logger,
-              private auth: AuthenticationService) {    
+              private auth: AuthenticationService) {   
+
+    if (Globals.inTestMode) {
+      logger.log('UserService running in ' + process.env.ENV + ' mode.');
+      this.http = new MockHttp(logger);
+    } else {
+      logger.log('UserService running in production mode.');
+    }
+    logger.log('UserService using links url ' + this.linksUrl + ' linkTypesUrl url ' + this.linkTypesUrl);
+         
     if (this.auth.getToken() != null) {
       this.headers.set('Authorization', 'Bearer ' + this.auth.getToken());
     }
