@@ -26,31 +26,31 @@ export class MockHttp extends Http {
       this.mockDataService = injector.get(MockDataService);
     };
 
-    getPathFromUrl(url: string): any {
-      var resultArr: string[] = new RegExp(this.UrlRegex).exec(url);
-      if (!resultArr || resultArr.length === 0) {
-        this.logger.error('URL pattern is not supported by mock http service: ' + url);
-        return null;
-      } else {
-        if (resultArr[1].startsWith('/workitems') && resultArr[1] != '/workitems' && resultArr[1] != '/workitems.2') {
-          var pathArr: string[] = new RegExp(this.WorkItemRegex).exec(resultArr[1]);
-          if (!pathArr || pathArr.length === 0) {
-            this.logger.error('URL pattern is a work item reference but without id reference: ' + url);
-            return null;
-          } else {
-            return { path: '/workitems', refid: pathArr[1] };
-          }
-        } else if (resultArr[1].startsWith('/work-item-list')) {
-          var pathArr: string[] = new RegExp(this.WorkItemSearchRegexp).exec(resultArr[1]);
-          if (!pathArr || pathArr.length === 0) {
-            this.logger.error('URL pattern is a work item search but without search term: ' + url);
-            return null;
-          } else {
-            return { path: '/work-item-list', refid: pathArr[1] };
-          }
+    parseURL(url: string): any {
+      var a = document.createElement('a');
+      a.href = url;
+      var query = a.search.substr(1);
+      var params = {};
+      query.split('&').forEach(function(part) {
+        if (part) {
+          var item = part.split('=');
+          params[item[0]] = decodeURIComponent(item[1]);
         }
-        return { path: resultArr[1], refid: null };
+      });
+      // cut off first path element
+      var result = {
+        path: a['pathname'].replace(/^\/[^\/]+\//, '/'),
+        host: a['host'],
+        port: a['port'],
+        params: params
+      };
+      // parse extra paths based on resource
+      if (result.path.indexOf('/workitems/') == 0) {
+        result['extraPath'] = result.path.replace(/^\/workitems\//, '');
+        result['path'] = '/workitems';
       }
+      this.logger.log('Parsed request path: ' + JSON.stringify(result));
+      return result;
     }
 
     createResponse(url: string, status: number, statusText: string, body: any): Observable<Response> {
@@ -63,6 +63,28 @@ export class MockHttp extends Http {
       });
       var res = new Response(responseOptions);
       return Observable.of(res);
+    }
+
+    createPage(workItems: any[], params: any): any {
+      var offset: number = 0;
+      var limit: number = 20;
+      if (params['page[offset]'])
+        offset = parseInt(params['page[offset]']);
+      if (params['page[limit]'])
+      limit = params['page[limit]'];
+      this.logger.log('Creating paged workItems result: offset=' + offset + ' limit=' + limit);
+      var pageItems: any = workItems.slice(offset, limit);
+      var result = { 
+        'data': pageItems, 
+        'links': { 
+          'first': 'http://mock.service/api/workitems?page[offset]=0&page[limit]=' + limit,
+          'last': 'http://mock.service/api/workitems?page[offset]=' + (workItems.length - limit) + '&page[limit]=' + limit, 
+          'next': 'http://mock.service/api/workitems?page[offset]=' + (offset + limit) + '&page[limit]=' + limit 
+        }, 
+        'meta': { 'totalCount': workItems.length } 
+        };
+      this.logger.log('Page result: ' + JSON.stringify(result));
+      return result;
     }
 
     /**
@@ -82,31 +104,29 @@ export class MockHttp extends Http {
      * Performs a request with `get` http method.
      */
     get(url: string, options?: RequestOptionsArgs): Observable<Response> {
-      var path = this.getPathFromUrl(url);
-      if (path == null) {
+      var path = this.parseURL(url);
+      if (path.path == null) {
         this.logger.error('GET request failed with request url ' + url);
         return this.createResponse(url.toString(), 500, 'error', {});  
       }
       this.logger.log('GET request at ' + path.path);
       // add new paths here
       switch (path.path) {
-        case '/workitems.2':
-          return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.getWorkItems() } );
         case '/workitemtypes':
           return this.createResponse(url.toString(), 200, 'ok', this.mockDataService.getWorkItemTypes() );
         case '/workitems':
-          if (path.refid) {
-            return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.getWorkItem(path.refid) } );
+          if (path.extraPath) {
+            return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.getWorkItem(path.extraPath) } );
           } else {
-            return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.getWorkItemTypes() } );
+            return this.createResponse(url.toString(), 200, 'ok', this.createPage(this.mockDataService.getWorkItems(), path.params) );
           }
         case '/user':
           return this.createResponse(url.toString(), 200, 'ok', this.mockDataService.getUser() );
         case '/identities':
           return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.getAllUsers() } );          
         case '/work-item-list':
-          if (path.refid) {
-            return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.searchWorkItem(path.refid) } );
+          if (path.params['name']) {
+            return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.searchWorkItem(path.params['name']) } );
           } else {
             return this.createResponse(url.toString(), 500, 'error: no search term given.', { } );
           }
@@ -123,15 +143,15 @@ export class MockHttp extends Http {
      */
     post(url: string, body: any, options?: RequestOptionsArgs): Observable<Response> {
       this.logger.log('POST request at ' + url);
-      var path = this.getPathFromUrl(url);
-      if (path == null) {
+      var path = this.parseURL(url);
+      if (path.path == null) {
         this.logger.error('POST request failed with request url ' + url);
         return this.createResponse(url.toString(), 500, 'error', {});  
       }
       if (path.path === '/workitems') {
-        return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.createWorkItem(JSON.parse(body)) });
+        return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.createWorkItem(JSON.parse(body).data) });
       } else if (path.path === '/workitemlinks') {
-        return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.createWorkItemLink(JSON.parse(body)) });    
+        return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.createWorkItemLink(JSON.parse(body).data) });    
       } else 
         return this.createResponse(url.toString(), 500, 'POST to unknown resource: ' + path.path, {});        
     };
@@ -140,54 +160,73 @@ export class MockHttp extends Http {
      */
     put(url: string, body: any, options?: RequestOptionsArgs): Observable<Response> {
       this.logger.log('PUT request at ' + url);
-      var path = this.getPathFromUrl(url);
-      if (path == null) {
+      var path = this.parseURL(url);
+      if (path.path == null) {
         this.logger.error('PUT request failed with request url ' + url);
         return this.createResponse(url.toString(), 500, 'error', {});  
       }
-      if (path.path === '/workitems' && path.refid != null) {
+      if (path.path === '/workitems' && path.extraPath) {
         var result = this.mockDataService.updateWorkItem(JSON.parse(body));
         if (result != null)
           return this.createResponse(url.toString(), 200, 'ok', { data: result });
         else
-          return this.createResponse(url.toString(), 500, 'WorkItem does not exist: ' + path.refid, {});  
-      } else if (path.path === '/workitemlinks' && path.refid != null) {
+          return this.createResponse(url.toString(), 500, 'WorkItem does not exist: ' + path.extraPath, {});  
+      } else if (path.path === '/workitemlinks' && path.extraPath != null) {
         var result = this.mockDataService.updateWorkItemLink(JSON.parse(body));
         if (result != null)
           return this.createResponse(url.toString(), 200, 'ok', result);
         else
-          return this.createResponse(url.toString(), 500, 'WorkItemLink does not exist: ' + path.refid, {});      
+          return this.createResponse(url.toString(), 500, 'WorkItemLink does not exist: ' + path.extraPath, {});      
       } else 
-        return this.createResponse(url.toString(), 500, 'PUT to unknown resource: ' + path.path, {});      
+        return this.createResponse(url.toString(), 500, 'PUT to unknown resource: ' + path.extraPath, {});      
     };
     /**
      * Performs a request with `delete` http method.
      */
     delete(url: string, options?: RequestOptionsArgs): Observable<Response> {
       this.logger.log('DELETE request at ' + url);
-      var path = this.getPathFromUrl(url);
-      if (path == null) {
+      var path = this.parseURL(url);
+      if (path.path == null) {
         this.logger.error('DELETE request failed with request url ' + url);
         return this.createResponse(url.toString(), 500, 'error', {});  
       }
-      if (path.path === '/workitems' && path.refid != null) {
-        if (this.mockDataService.deleteWorkItem(path.refid))
+      if (path.path === '/workitems' && path.extraPath) {
+        if (this.mockDataService.deleteWorkItem(path.extraPath))
           return this.createResponse(url.toString(), 200, 'ok', {});
         else
-          return this.createResponse(url.toString(), 500, 'WorkItem does not exist: ' + path.refid, {});  
-      } else if (path.path === '/workitemlinks' && path.refid != null) {
-        if (this.mockDataService.deleteWorkItemLink(path.refid))
+          return this.createResponse(url.toString(), 500, 'WorkItem does not exist: ' + path.extraPath, {});  
+      } else if (path.path === '/workitemlinks' && path.extraPath) {
+        if (this.mockDataService.deleteWorkItemLink(path.extraPath))
           return this.createResponse(url.toString(), 200, 'ok', {});
         else
-          return this.createResponse(url.toString(), 500, 'WorkItemLink does not exist: ' + path.refid, {});  
+          return this.createResponse(url.toString(), 500, 'WorkItemLink does not exist: ' + path.extraPath, {});  
       }
     };
     /**
      * Performs a request with `patch` http method.
      */
     patch(url: string, body: any, options?: RequestOptionsArgs): Observable<Response> {
+      // Note: this assumes the PATCH request contains the full entity in the body!
       this.logger.log('PATCH request at ' + url);
-      return this.createResponse(url.toString(), 500, 'PATCH method not implemented in mock-http.', {});
+      var path = this.parseURL(url);
+      if (path.path == null) {
+        this.logger.error('PATCH request failed with request url ' + url);
+        return this.createResponse(url.toString(), 500, 'error', {});  
+      }
+      if (path.path === '/workitems' && path.extraPath) {
+        var result = this.mockDataService.updateWorkItem(JSON.parse(body).data);
+        if (result != null)
+          return this.createResponse(url.toString(), 200, 'ok', { data: result });
+        else
+          return this.createResponse(url.toString(), 500, 'WorkItem does not exist: ' + path.extraPath, {});  
+      } else if (path.path === '/workitemlinks' && path.extraPath != null) {
+        var result = this.mockDataService.updateWorkItemLink(JSON.parse(body));
+        if (result != null)
+          return this.createResponse(url.toString(), 200, 'ok', result);
+        else
+          return this.createResponse(url.toString(), 500, 'WorkItemLink does not exist: ' + path.extraPath, {});      
+      } else 
+        return this.createResponse(url.toString(), 500, 'PATCH to unknown resource: ' + path.extraPath, {});    
     };
     /**
      * Performs a request with `head` http method.
