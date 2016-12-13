@@ -96,7 +96,7 @@ export class MockHttp extends Http {
           return this.createResponse(url.toString(), 200, 'ok', this.mockDataService.getWorkItemTypes() );
         case '/workitems':
           if (path.refid) {
-            return this.createResponse(url.toString(), 200, 'ok', this.mockDataService.getWorkItem(path.refid) );
+            return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.getWorkItem(path.refid) } );
           } else {
             return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.getWorkItemTypes() } );
           }
@@ -129,7 +129,7 @@ export class MockHttp extends Http {
         return this.createResponse(url.toString(), 500, 'error', {});  
       }
       if (path.path === '/workitems') {
-        return this.createResponse(url.toString(), 200, 'ok', this.mockDataService.createWorkItem(JSON.parse(body)));
+        return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.createWorkItem(JSON.parse(body)) });
       } else if (path.path === '/workitemlinks') {
         return this.createResponse(url.toString(), 200, 'ok', { data: this.mockDataService.createWorkItemLink(JSON.parse(body)) });    
       } else 
@@ -148,7 +148,7 @@ export class MockHttp extends Http {
       if (path.path === '/workitems' && path.refid != null) {
         var result = this.mockDataService.updateWorkItem(JSON.parse(body));
         if (result != null)
-          return this.createResponse(url.toString(), 200, 'ok', result);
+          return this.createResponse(url.toString(), 200, 'ok', { data: result });
         else
           return this.createResponse(url.toString(), 500, 'WorkItem does not exist: ' + path.refid, {});  
       } else if (path.path === '/workitemlinks' && path.refid != null) {

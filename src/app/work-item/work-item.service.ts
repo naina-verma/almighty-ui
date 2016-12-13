@@ -71,9 +71,6 @@ export class WorkItemService {
         url += '&' + item.paramKey + '=' + item.value;
       }
     });
-    if (process.env.ENV == 'inmemory') {
-      url = this.workItemUrl;
-    }
     return this.http
       .get(url, { headers: this.headers })
       .toPromise()
@@ -81,16 +78,11 @@ export class WorkItemService {
         // Build the user - id map
         this.buildUserIdMap();
         let wItems: WorkItem[];
-        if (process.env.ENV == 'inmemory') {
-          // Exclusively for in memory testing
-          wItems = (response.json().data as WorkItem[]).reverse();
-        } else {
-          let links = response.json().links;
-          if (links.hasOwnProperty('next')) {
-            this.nextLink = links.next;
-          }
-          wItems = response.json().data as WorkItem[];
+        let links = response.json().links;
+        if (links.hasOwnProperty('next')) {
+          this.nextLink = links.next;
         }
+        wItems = response.json().data as WorkItem[];
         wItems.forEach((item) => {
           // Resolve the assignee and creator
           this.resolveUsersForWorkItem(item);
@@ -107,7 +99,6 @@ export class WorkItemService {
    * It does pretty much same as the getWorkItems function
    */
   getMoreWorkItems(): Promise<any> {
-    console.log(this.nextLink);
     if (this.nextLink) {
       return this.http
       .get(this.nextLink, { headers: this.headers })
