@@ -426,8 +426,8 @@ export class MockDataService {
 
   public getUser(): any {
     return {
-      'id': 'user1',
-      'fullName': 'Sudipta Sen',
+      'id': 'user0',
+      'fullName': 'Example User 0',
       'imageURL': 'https://avatars.githubusercontent.com/u/2410474?v=3'
     };
   }
@@ -436,30 +436,25 @@ export class MockDataService {
     return [
       {
         attributes: {
-          fullName: 'Sudipta Sen',
-          imageURL: 'https://avatars.githubusercontent.com/u/2410474?v=3',
+          fullName: 'Example User 1',
+          imageURL: 'https://avatars.githubusercontent.com/u/2410474?v=3'
         },
-        id: 'user1',
-        type: 'identities'
-      },
-      {
+        id: 'user1'
+      }, {
         attributes: {
-          fullName: 'User Two',
-          imageURL: 'https://avatars.githubusercontent.com/u/2410474?v=3',
+          fullName: 'Example User 2',
+          imageURL: 'https://avatars.githubusercontent.com/u/2410474?v=3'
         },
-        id: 'user2',
-        type: 'identities'
-      },
-      {
+        id: 'user2'
+      }, {
         attributes: {
-          fullName: 'User Three',
-          imageURL: 'https://avatars.githubusercontent.com/u/2410474?v=3',
+          fullName: 'Example User 3',
+          imageURL: 'https://avatars.githubusercontent.com/u/2410474?v=3'
         },
-        id: 'user3',
-        type: 'identities'
+        id: 'user3'
       }
     ];
-  }
+ }
 
   public getLinkCategories(): any {
     return {
