@@ -428,7 +428,7 @@ export class MockDataService {
     return {
       'id': 'user0',
       'fullName': 'Example User 0',
-      'imageURL': 'https://avatars.githubusercontent.com/u/2410474?v=3'
+      'imageURL': 'https://avatars.githubusercontent.com/u/2410471?v=3'
     };
   }
 
@@ -436,15 +436,22 @@ export class MockDataService {
     return [
       {
         attributes: {
+          fullName: 'Example User 0',
+          imageURL: 'https://avatars.githubusercontent.com/u/2410471?v=3'
+        },
+        id: 'user0',
+        type: 'identities'
+      }, {
+        attributes: {
           fullName: 'Example User 1',
-          imageURL: 'https://avatars.githubusercontent.com/u/2410474?v=3'
+          imageURL: 'https://avatars.githubusercontent.com/u/2410472?v=3'
         },
         id: 'user1',
         type: 'identities'
       }, {
         attributes: {
           fullName: 'Example User 2',
-          imageURL: 'https://avatars.githubusercontent.com/u/2410474?v=3'
+          imageURL: 'https://avatars.githubusercontent.com/u/2410473?v=3'
         },
         id: 'user2',
         type: 'identities'
