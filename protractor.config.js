@@ -6,11 +6,14 @@ exports.config = {
     jasmineNodeOpts: {
         defaultTimeoutInterval: 30000
     },
+    maxInstances: 1,
 
-    capabilities: {
-         'browserName': 'phantomjs',
-         'phantomjs.binary.path': require('phantomjs-prebuilt').path,
-         'phantomjs.cli.args': ['--webdriver-loglevel=ERROR', '--local-storage-path=/tmp/phantom_' + Math.random()]
-
-    }
+    multiCapabilities: [
+          { 'browserName': 'firefox', 
+          'firefox.binary': "/usr/bin/firefox ",
+          'firefox.cli.args': ['--webdriver-loglevel=ERROR', '--local-storage-path=/tmp/firefox_' + Math.random()] },
+        { 'browserName': 'phantomjs',
+          'phantomjs.binary.path': require('phantomjs-prebuilt').path,
+          'phantomjs.cli.args': ['--webdriver-loglevel=ERROR', '--local-storage-path=/tmp/phantom_' + Math.random()] }
+  ]
 };

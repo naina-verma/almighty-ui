@@ -8,7 +8,7 @@ export NODE_ENV=inmemory
 
 # Download dependencies
 echo -n Updating Webdriver and Selenium...
-node_modules/protractor/bin/webdriver-manager update
+#node_modules/protractor/bin/webdriver-manager update
 # Start selenium server just for this test run
 echo -n Starting Webdriver and Selenium...
 (node_modules/protractor/bin/webdriver-manager start >>$LOGFILE 2>&1 &)
