@@ -18,8 +18,6 @@ import { WorkItemType } from './work-item-type';
 import { UserService } from '../user/user.service';
 import { User } from '../models/user';
 
-
-
 import { MockHttp } from './../shared/mock-http';
 import Globals = require('./../shared/globals');
 
@@ -403,7 +401,6 @@ export class WorkItemService {
   create(workItem: WorkItem): Promise<WorkItem> {
     let url = this.workItemUrl;
     let payload = JSON.stringify({data: workItem});
-    console.log(payload);
     return this.http
       .post(url, payload, { headers: this.headers })
       .toPromise()

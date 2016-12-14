@@ -439,19 +439,22 @@ export class MockDataService {
           fullName: 'Example User 1',
           imageURL: 'https://avatars.githubusercontent.com/u/2410474?v=3'
         },
-        id: 'user1'
+        id: 'user1',
+        type: 'identities'
       }, {
         attributes: {
           fullName: 'Example User 2',
           imageURL: 'https://avatars.githubusercontent.com/u/2410474?v=3'
         },
-        id: 'user2'
+        id: 'user2',
+        type: 'identities'
       }, {
         attributes: {
           fullName: 'Example User 3',
           imageURL: 'https://avatars.githubusercontent.com/u/2410474?v=3'
         },
-        id: 'user3'
+        id: 'user3',
+        type: 'identities'
       }
     ];
  }
