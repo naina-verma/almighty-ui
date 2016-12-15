@@ -21,7 +21,7 @@ module.exports = {
   setBrowserMode: function(browserModeStr) {
     switch (browserModeStr) {
 	  case 'phone':
-	    browser.driver.manage().window().setSize(375, 667);
+	    browser.driver.manage().window().setSize(430, 667);
       break;
 	  case 'tablet':
         browser.driver.manage().window().setSize(768, 1024);

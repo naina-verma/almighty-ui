@@ -67,9 +67,15 @@ var waitTime = 30000;
   }); 
   /**Test to update the assigned user */ 
   it('Test to update the assigned user  -phone ', function() {
+      var workItemTitle = "The test workitem title";
+      var workItemUpdatedTitle = "The test workitem title - UPDATED";
+      page.clickWorkItemQuickAdd();
+      page.typeQuickAddWorkItemTitle(workItemTitle);
+      page.clickQuickAddSave().then(function() {
       page.workItemViewId(page.firstWorkItem).getText().then(function (text) { 
       var detailPage = page.clickWorkItemTitle(page.firstWorkItem, text);
-      detailPage.workItemDetailAssigneeIcon().click();
+      expect(detailPage.workItemDetailAssigneeIcon().isPresent()).toBe(true);
+      detailPage.workItemDetailAssigneeNameClickable().click();
       detailPage.setWorkItemDetailAssigneeSearch("Example User 2",false);
       detailPage.clickAssignedUserDropDownList("Example User 2");
       expect(detailPage.details_assigned_user().getText()).toContain("Example User 2");
@@ -78,9 +84,9 @@ var waitTime = 30000;
       expect(detailPage.workItemDetailAssigneeName().getText()).toBe('Example User 2');
       });
   }); 
-   
+   }); 
  /**User can read , update , remove assignee  */
-   it('User can read , update , remove assignee  -phone ', function() {
+  it('User can read , update , remove assignee  -phone ', function() {
       var workItemTitle = "The test workitem title";
       var workItemUpdatedTitle = "The test workitem title - UPDATED";
       page.clickWorkItemQuickAdd();
@@ -99,7 +105,7 @@ var waitTime = 30000;
     });
   }); 
  /**User can Cancel assignee  */
-   it('User can Cancel assignee -phone ', function() {
+  it('User can Cancel assignee -phone ', function() {
       var workItemTitle = "The test workitem title";
       var workItemUpdatedTitle = "The test workitem title - UPDATED";
       page.clickWorkItemQuickAdd();
@@ -122,7 +128,7 @@ var waitTime = 30000;
   }); 
 
   /**User can read , update , remove assignee  */
-    it('User can read , update , remove assignee -phone ', function() {
+  it('User can read , update , remove assignee -phone ', function() {
       var workItemTitle = "The test workitem title";
       var workItemUpdatedTitle = "The test workitem title - UPDATED";
       page.clickWorkItemQuickAdd();
@@ -145,6 +151,11 @@ var waitTime = 30000;
   });
   /**Test name and avatar are shown up in the drop down */ 
   it('Test name and avatar are shown up in the drop down -phone ', function() {
+      var workItemTitle = "The test workitem title";
+      var workItemUpdatedTitle = "The test workitem title - UPDATED";
+      page.clickWorkItemQuickAdd();
+      page.typeQuickAddWorkItemTitle(workItemTitle);
+      page.clickQuickAddSave().then(function() {
       page.workItemViewId(page.firstWorkItem).getText().then(function (text) { 
       var detailPage = page.clickWorkItemTitle(page.firstWorkItem, text);
       detailPage.workItemDetailAssigneeIcon().click();
@@ -155,5 +166,6 @@ var waitTime = 30000;
       expect(detailPage.workItemDetailUnAssigneeIcon().isPresent()).toBe(false);
       detailPage.clickWorkItemDetailCloseButton();
      });
-  }); 
+  });
+    }); 
 });
