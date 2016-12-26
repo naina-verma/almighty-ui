@@ -6,7 +6,7 @@ import { HttpModule }    from '@angular/http';
 import { DropdownModule } from 'ng2-dropdown';
 import { TabsModule } from 'ng2-bootstrap/components/tabs';
 import { ModalModule } from 'ng2-modal';
-import { TooltipModule } from 'ng2-bootstrap/components/tooltip';
+import { TooltipModule, CollapseModule } from 'ng2-bootstrap';
 
 // Imports for loading & configuring the in-memory web api
 // if not used will be removed for production by treeshaking
@@ -68,6 +68,7 @@ if (process.env.ENV == 'inmemory') {
     BoardModule,
     ChatModule,
     CodeModule,
+    CollapseModule,
     DashboardModule,
     DropdownModule,
     FormsModule,
@@ -92,6 +93,7 @@ if (process.env.ENV == 'inmemory') {
     BoardModule,
     ChatModule,
     CodeModule,
+    CollapseModule,
     DashboardModule,
     DropdownModule,
     FormsModule,
