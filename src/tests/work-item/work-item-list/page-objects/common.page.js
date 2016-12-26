@@ -153,6 +153,12 @@ class CommonPage {
     this.microservicesMenuTab.click(); 
     return new MicroservicesPage();
   }
+  clickMobileViewHeaderMenu () {
+    return element(by.id('header-toggle-menu-btn')).click();
+  }
+  homegenericLocator  ()  {
+        return element(by.id("header_menuHome")).sendKeys(protractor.Key.ARROW_DOWN);
+  }
 
 }
 

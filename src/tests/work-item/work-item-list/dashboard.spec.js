@@ -27,6 +27,7 @@ describe('Dashboard page', function () {
   });
 
   it('should contain correct page title.', function() {
+      page.clickMobileViewHeaderMenu();
       var theDashboardPage = page.clickHomeMenuTab();
       expect(browser.getCurrentUrl()).toEqual('http://localhost:8088/dashboard');
       browser.wait(until.urlContains('dashboard'), waitTime, 'Failed to open clickHomeMenuTab page');

@@ -298,6 +298,9 @@ class WorkItemListPage {
 
 
   }  
+  clickMobileViewHeaderMenu () {
+    return element(by.id('header-toggle-menu-btn')).click();
+  }
   
 }
 

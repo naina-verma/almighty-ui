@@ -33,6 +33,7 @@ describe('Work item list', function () {
 
 /*Test Quick add work item should not be visible*/ 
   it('Test Quick workitem visible without authorization - phone.', function () { 
+    page.clickMobileViewHeaderMenu();
     page.clickLogoutButton().click();
     expect(page.quickAddbuttonById().isPresent()).toBeFalsy();
    });
