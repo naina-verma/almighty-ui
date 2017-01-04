@@ -380,13 +380,17 @@ class WorkItemDetailPage {
     return element(by.id("comment_avatar_"+index));
   }
   getNumberofComments (){
-    return element(by.css('comments-wrap')).count();
+    return element.all(by.css('comments-wrap')).count();
   }
   getCommentTime  (index){
     return element(by.id('comment_time_'+index)).getText();
   }
   getCommentBody  (index){
+ //   browser.wait(until.presenceOf(element(by.id('comment_body_'+index))), constants.WAIT, 'Failed to find element body');
     return element(by.id('comment_body_'+index)).getText();
+  }
+  getCommentUsername  (index){
+    return element(by.id('comment_username_'+index)).getText();
   }
 /**UI elements for created time WI */
   getCreatedtime  (){

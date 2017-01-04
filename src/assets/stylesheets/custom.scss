@@ -82,3 +82,11 @@ $textCenter: center;
   .containerPadd{ padding-top: em(11); }
   .containerPadd-nologin{ padding-bottom: 0; }
 }
+.user-avatar{
+    height: em(20);
+    width: em(20);
+    img{
+        width: $width100;
+        height: 100%;
+    }
+}

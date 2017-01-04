@@ -27,7 +27,7 @@ describe('Work item list', function () {
   var page, items, browserMode;
 
   beforeEach(function () {
-    testSupport.setBrowserMode('phone');
+    testSupport.setBrowserMode('desktop');
     page = new WorkItemListPage(true);   
   });
 
@@ -44,5 +44,23 @@ describe('Work item list', function () {
 //    browser.wait(until.presenceOf(page.workItemByTitle(workItemTitle)), waitTime, 'Failed to find workItemList');
 //    expect(page.workItemTitle(page.workItemByTitle(workItemTitle))).toBe(workItemTitle);
 //  });
+ it('Create a comment and verify all the attributes image, date , comment body -desktop', function () {
+   page.clickDetailedDialogButton();
+   var detailPage = page.clickDetailedIcon("userstory");
+   detailPage.setWorkItemDetailTitle (workItemTitle, false);
+   detailPage.clickWorkItemTitleSaveIcon();
+   detailPage.clickWorkItemDetailDescription()
+   detailPage.setWorkItemDetailDescription (workItemDescription, true);
+   detailPage.clickWorkItemDescriptionSaveIcon();
+   detailPage.writeComment("comment 0");
+   var str=detailPage.commentDiv().getText();console.log(str);
+   detailPage.commentDiv().sendKeys(protractor.Key.ENTER);
+   expect(detailPage.getCommentBody("0")).toBe("comment 0");
+  //  expect(detailPage.getCommentUsername("0")).toBe("Example User 0");
+  //  expect(detailPage.commentsAvatar("0").isPresent()).toBe(true);
+  //  expect(detailPage.getCommentTime("0")).toBe("Jan 1, 2000, 2:30:00 PM");
+  //  detailPage.clickWorkItemDetailCloseButton();
+  });
+
   
 });
