@@ -357,6 +357,7 @@ class WorkItemListPage {
 
  /* Is checkbox relative to a workitem selected? */
   isWorkItemCheckboxSelected (workItemElement) {
+           browser.actions().mouseMove(workItemElement).perform();
     return this.workItemCheckbox (workItemElement).isSelected(); 
   }
 
