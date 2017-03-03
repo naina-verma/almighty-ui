@@ -25,7 +25,10 @@ describe('Work item list', function () {
   beforeEach(function () {
     testSupport.setBrowserMode('desktop');
     page = new WorkItemListPage(true);   
-    
+    expect(page.spaceDropdown().isPresent()).toBe(true);
+    page.clickOnSpaceDropdown();
+    page.selectSpaceDropDownValue("1");
+ 
   });
 
  it('check date showing up correctly - Desktop', function () {

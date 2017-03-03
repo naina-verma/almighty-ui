@@ -36,7 +36,7 @@
         <a [routerLink]="['/work-item/board']" id="header_menuWork"><span class="nav-item-text">WorkBoard</span></a>
       </li>
       <li>
-        <select [ngModel]="selectedSpace" (ngModelChange)="onSpaceChange($event)">
+        <select [ngModel]="selectedSpace" (ngModelChange)="onSpaceChange($event)" id="space-dropdown-id">
           <option *ngFor="let space of spaces" [ngValue]="space">{{space.name}}</option>
         </select>
       </li>

@@ -66,7 +66,10 @@ describe('Drag and drop Test', function () {
   beforeEach(function () {
     testSupport.setBrowserMode('desktop');
     page = new WorkItemListPage(true);    
-    
+    expect(page.spaceDropdown().isPresent()).toBe(true);
+    page.clickOnSpaceDropdown();
+    page.selectSpaceDropDownValue("1");
+ 
   });
 
   it('should drag and drop the source into into the target position - phone.', function() {

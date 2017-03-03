@@ -45,6 +45,16 @@ class WorkItemListPage {
      browser.get("http://localhost:8088/");
    }
  };
+ spaceDropdown (){
+   return element(by.id("space-dropdown-id"));
+ }
+ clickOnSpaceDropdown (){
+   return element(by.id("space-dropdown-id")).click();
+ }
+selectSpaceDropDownValue  (index){
+  return element(by.xpath('//*[@id="space-dropdown-id"]/option[' + index + ']')).click();
+}
+
  workItemByURLId (workItemId) {
    browser.get("http://localhost:8088/work-item/list/detail/"+ workItemId);
  }

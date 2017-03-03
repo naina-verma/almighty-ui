@@ -23,7 +23,11 @@ var waitTime = 30000;
     testSupport.setBrowserMode('desktop');
     page = new WorkItemListPage(true);
     detailPage = new WorkItemDetailPage(true);
-  });
+    expect(page.spaceDropdown().isPresent()).toBe(true);
+    page.clickOnSpaceDropdown();
+    page.selectSpaceDropDownValue("1");
+ 
+});
   it('Verify comments text area, username, comment,time is present -desktop ', function() {
       page.clickWorkItemTitle(page.firstWorkItem, "id0");
       expect(detailPage.commentDiv().isPresent()).toBe(true);

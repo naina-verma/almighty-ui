@@ -24,6 +24,10 @@ describe('Link item ', function () {
   beforeEach(function () {
     testSupport.setBrowserMode('desktop');
     page = new WorkItemListPage(true);  
+    expect(page.spaceDropdown().isPresent()).toBe(true);
+    page.clickOnSpaceDropdown();
+    page.selectSpaceDropDownValue("1");
+ 
     // detailPage = new WorkItemDetailPage();    
   });
 

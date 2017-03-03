@@ -38,6 +38,10 @@ var waitTime = 30000;
 
     testSupport.setBrowserMode('phone');
     page = new WorkItemListPage(true);
+    expect(page.spaceDropdown().isPresent()).toBe(true);
+    page.clickOnSpaceDropdown();
+    page.selectSpaceDropDownValue("1");
+ 
   });
 
 /* Create a new workitem, fill in the details, save, retrieve, update, save, verify updates are saved */

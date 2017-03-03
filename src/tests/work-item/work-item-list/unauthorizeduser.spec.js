@@ -30,6 +30,10 @@ describe('Work item list', function () {
     testSupport.setBrowserMode('phone');
     page = new WorkItemListPage(false);
     detailPage=new WorkItemDetailPage(1);
+    expect(page.spaceDropdown().isPresent()).toBe(true);
+    page.clickOnSpaceDropdown();
+    page.selectSpaceDropDownValue("1");
+ 
   });
 
 /*Test Quick add work item should not be visible*/ 

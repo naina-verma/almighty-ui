@@ -38,6 +38,10 @@ var UnicodeNumbers = "１２３١٢٣";
   beforeEach(function () {
     testSupport.setBrowserMode('phone');
     page = new WorkItemListPage(true);
+    expect(page.spaceDropdown().isPresent()).toBe(true);
+    page.clickOnSpaceDropdown();
+    page.selectSpaceDropDownValue("1");
+ 
   });
 
 it('Quick create UnicodeSymbols workitems', function () { quickCreateWorkItem (UnicodeSymbols); });

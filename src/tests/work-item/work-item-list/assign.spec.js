@@ -28,6 +28,11 @@ var waitTime = 30000;
     testSupport.setBrowserMode('desktop');
 //    browser.ignoreSynchronization = true;
     page = new WorkItemListPage(true);
+    expect(page.spaceDropdown().isPresent()).toBe(true);
+    page.clickOnSpaceDropdown();
+    page.selectSpaceDropDownValue("1");
+    // browser.wait(until.elementToBeClickable(page.KebabButtonById()), constants.WAIT, 'Failed!');   
+ 
   });
   
 /**Test searching user in the assignee drop down  */

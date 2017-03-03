@@ -33,7 +33,11 @@ describe('Work item list', function () {
       workItemCreator:'',
       workItemAssignee:'',
       workItemState:'new'
-    }; 
+    };
+    expect(page.spaceDropdown().isPresent()).toBe(true);
+    page.clickOnSpaceDropdown();
+    page.selectSpaceDropDownValue("1");
+  
   });
 
   it('should have the right mock data in the first entry - phone.', function() {

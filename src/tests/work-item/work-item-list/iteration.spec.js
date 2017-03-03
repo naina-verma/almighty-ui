@@ -21,6 +21,10 @@ var waitTime = 30000;
   beforeEach(function () {
     testSupport.setBrowserMode('desktop');
     page = new WorkItemListPage(true);
+    expect(page.spaceDropdown().isPresent()).toBe(true);
+    page.clickOnSpaceDropdown();
+    page.selectSpaceDropDownValue("1");
+ 
   });
   it('Verify Iteration add button and label are clickable + dialoge label is present -phone ', function() {
       expect(page.iterationAddButton().isPresent()).toBe(true);
