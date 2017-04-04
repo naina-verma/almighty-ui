@@ -244,7 +244,7 @@
               id="WI_details_iteration" >
               <div class="col-sm-6 padding-0">
                 <div class="input-group" dropdown>
-                  <input type="text" autocomplete="false" id="WI_details_iteration_dropdownbtn" placeholder="Select Iteration" class="combobox form-control">
+
                   <ul class="dropdown-menu" role="menu" aria-labelledby="WI_details_iteration_dropdown" dropdownMenu>
                     <li *ngFor="let iteration of iterations;" role="presentation">
                       <a role="menuitem" tabindex="-1" (click)="selectIteration(iteration)">
@@ -253,6 +253,7 @@
                     </li>
                   </ul>
                   <span class="input-group-addon dropdown-toggle" dropdownToggle data-dropdown="dropdown"> <span class="caret" id="iteration-caret"></span> <span class="glyphicon glyphicon-remove"></span> </span>
+
                 </div>
               </div>
               <div class="col-sm-6">
